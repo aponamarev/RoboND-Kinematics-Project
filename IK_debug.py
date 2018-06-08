@@ -73,6 +73,16 @@ def test_code(test_case):
     # q (theta) parameter is joint angle (rotation angle of x axis along z axis) according to
     # the right hand rule (counter-clock wise)
     q1, q2, q3, q4, q5, q6, q7 = symbols('q1:8')
+    # Create a dictionary containing df table
+    dh_table = {
+        alpha0:     0.0, a0:  0.0, d1: 0.75, q1: q1,
+        alpha1: -pi/2.0, a1: 0.35, d2: 0.0, q2: -pi/2.0+q2,
+        alpha2:     0.0, a2: 1.25, d3: 0.0, q3: q3,
+        alpha3: -pi/2.0, a3: -0.054, d4: 1.5, q4: q4,
+        alpha4: -pi/2.0, a4:  0.0, d5: 0.0, q5: q5,
+        alpha5: -pi/2.0, a5:  0.0, d6: 0.0, q6: q6,
+        alpha6:     0.0, a6:  0.0, d7: 0.303, q7: q7
+    }
 
     theta1 = 0
     theta2 = 0
