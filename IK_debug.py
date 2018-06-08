@@ -9,6 +9,16 @@ You can generate additional test cases by setting up your kuka project and runni
 From here you can adjust the joint angles to find thetas, use the gripper to extract positions and orientation (in quaternion xyzw) and lastly use link 5
 to find the position of the wrist center. These newly generated test cases can be added to the test_cases dictionary.
 '''
+def tf_matrix(alpha, a, d, q):
+    # Creates a transformation matrix based yaw, pitch, roll rotations
+    # for around x, y, z rotations
+    tf = Matrix([
+        [cos(q)             ,             -sin(q),              0,              a],
+        [sin(q)*cos(alpha)  ,   cos(q)*cos(alpha),    -sin(alpha),  -sin(alpha)*d],
+        [sin(q)*sin(alpha)  ,   cos(q)*sin(alpha),      cos(alpha),  cos(alpha)*d],
+        [0                  ,                   0,               0,             1]
+    ])
+    return tf
 
 test_cases = {1:[[[2.16135,-1.42635,1.55109],
                   [0.708611,0.186356,-0.157931,0.661967]],
