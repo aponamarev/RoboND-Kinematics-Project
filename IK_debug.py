@@ -60,10 +60,20 @@ def test_code(test_case):
     start_time = time()
     
     ########################################################################################
-    ## 
-
     ## Insert IK code here!
-    
+
+    # DH parameter symbols
+    # d parameter is a link offset along z axis (between x0 and x1 axis)
+    d1, d2, d3, d4, d5, d6, d7 = symbols('d1:8')
+    # a parameter is a link length along x axis (distance between z0 and z1)
+    a0, a1, a2, a3, a4, a5, a6 = symbols('a0:7')
+    # alpha parameter is a twist angle (rotation angle of z axis along x axis) according to
+    # right hand rule (counter-clock wise)
+    alpha0, alpha1, alpha2, alpha3, alpha4, alpha5, alpha6 = symbols('alpha0:7')
+    # q (theta) parameter is joint angle (rotation angle of x axis along z axis) according to
+    # the right hand rule (counter-clock wise)
+    q1, q2, q3, q4, q5, q6, q7 = symbols('q1:8')
+
     theta1 = 0
     theta2 = 0
     theta3 = 0
