@@ -123,6 +123,91 @@ def IK_thetas(px, py, pz, roll, pitch, yaw):
 
     return (theta1, theta2, theta3, theta4, theta5, theta6), t0_ee, WC
 
+def rot_x(q):
+    R_x = Matrix([[1, 0, 0],
+                  [0, cos(q), -sin(q)],
+                  [0, sin(q), cos(q)]])
+
+    return R_x
+
+
+def rot_y(q):
+    R_y = Matrix([[cos(q), 0, sin(q)],
+                  [0, 1, 0],
+                  [-sin(q), 0, cos(q)]])
+
+    return R_y
+
+
+def rot_z(q):
+    R_z = Matrix([[cos(q), -sin(q), 0],
+                  [sin(q), cos(q), 0],
+                  [0, 0, 1]])
+
+    return R_z
+
+
+def trans_matrix(alpha, a, d, q):
+    T = Matrix([[cos(q), -sin(q), 0, a],
+                [sin(q) * cos(alpha), cos(q) * cos(alpha), -sin(alpha), -sin(alpha) * d],
+                [sin(q) * sin(alpha), cos(q) * sin(alpha), cos(alpha), cos(alpha) * d],
+                [0, 0, 0, 1]])
+    return T
+
+def calculate_123(R_EE, px, py, pz, roll, pitch, yaw):
+    # Compensate for rotation discrepancy between DH parameters and Gazebo
+    Rot_err = rot_z(rad(180)) * rot_y(rad(-90))
+
+    # print Rot_err
+    # Matrix([[0,  0, 1],
+    #         [0, -1, 0],
+    #         [1,  0, 0]])
+
+    R_EE = R_EE * Rot_err
+    # print R_EE
+    # Matrix([[r13, -r12, r11],
+    #         [r23, -r22, r21],
+    #         [r33, -r32, r31])
+
+    R_EE = R_EE.subs({'r': roll, 'p': pitch, 'y': yaw})
+    # Find original wrist position with formula described in
+    # https://classroom.udacity.com/nanodegrees/nd209/parts/7b2fd2d7-e181-401e-977a-6158c77bf816/modules/8855de3f-2897-46c3-a805-628b5ecf045b/lessons/91d017b1-4493-4522-ad52-04a74a01094c/concepts/a1abb738-84ee-48b1-82d7-ace881b5aec0
+    G = Matrix([[px], [py], [pz]])
+    WC = G - (0.303) * R_EE[:, 2]
+
+    # Uncomment to see how end effector will be when wrist center
+    # is correct. Turns out when WC is correct theta and EE
+    # position errors get larger.
+    # WC = test_case[1]
+
+    # Calculate joint angles using Geometric IK method
+
+    # Relevant lesson:
+    # https://classroom.udacity.com/nanodegrees/nd209/parts/7b2fd2d7-e181-401e-977a-6158c77bf816/modules/8855de3f-2897-46c3-a805-628b5ecf045b/lessons/87c52cd9-09ba-4414-bc30-24ae18277d24/concepts/8d553d46-d5f3-4f71-9783-427d4dbffa3a
+    theta1 = atan2(WC[1], WC[0])
+
+    a = 1.501 # Found by using "measure" tool in RViz.
+    b = sqrt(pow((sqrt(WC[0] * WC[0] + WC[1] * WC[1]) - 0.35), 2) + \
+        pow((WC[2] - 0.75), 2))
+    c = 1.25 # Length of joint 1 to 2.
+
+    alpha = acos((b*b + c*c - a*a) / (2*b*c))
+    beta = acos((a*a + c*c - b*b) / (2*a*c))
+    # gamma = acos((a*a + b*b - c*c) / (2*a*b))
+    # print("alpha: {} deg / {} rad".format(deg(alpha).evalf(), alpha))
+    # print("beta: {} deg / {} rad".format(deg(beta).evalf(), beta))
+    # print("gamma: {} deg / {} rad".format(deg(gamma).evalf(), gamma))
+
+    delta = atan2(WC[2] - 0.75, sqrt(WC[0]*WC[0] + WC[1]*WC[1]) - 0.35)
+    theta2 = pi/2 - alpha - delta
+
+    # Look at Z position of -0.054 in link 4 and use it to calculate epsilon
+    # epsilon = math.atan2(d,math.sqrt(a**2-d**2))
+    # epsilon = math.atan2(0.054,math.sqrt(1.501**2-0.054**2))
+    epsilon = 0.036
+    theta3 = pi/2 - (beta + epsilon)
+    return (R_EE, WC, theta1, theta2, theta3)
+
 test_cases = {1:[[[2.16135,-1.42635,1.55109],
                   [0.708611,0.186356,-0.157931,0.661967]],
                   [1.89451,-1.44302,1.69366],
