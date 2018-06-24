@@ -50,6 +50,23 @@ Links | alpha(i-1) | a(i-1) | d(i-1) | theta(i)
 5->6 | 0 | 0 | 0 | 0
 6->EE | 0 | 0 | 0 | 0
 
+### Denavit-Hartenberg (DH) Parameters Derivation
+Generalize DH homogenious transform matrix is based on [Udacity Forward Kinematics Class](https://classroom.udacity.com/nanodegrees/nd209/parts/c199593e-1e9a-4830-8e29-2c86f70f489e/modules/undefined/lessons/87c52cd9-09ba-4414-bc30-24ae18277d24/concepts/c0837700-3de6-4c41-8a5d-1e25936e0cdb)
+![DH homogenious transform matrix](supporting_images/generic_dh_tf.png)
+
+Generalize DH homogenious transform matrix presented below:
+```python
+def tf_matrix(alpha, a, d, q):
+  # Creates a transformation matrix based yaw, pitch, roll rotations
+  # for around x, y, z rotations
+  tf = Matrix([
+    [cos(q), -sin(q), 0, a],
+    [sin(q) * cos(alpha), cos(q) * cos(alpha), -sin(alpha), -sin(alpha) * d],
+    [sin(q) * sin(alpha), cos(q) * sin(alpha), cos(alpha), cos(alpha) * d],
+    [0, 0, 0, 1]
+  ])
+  return tf
+```
 
 #### 3. Decouple Inverse Kinematics problem into Inverse Position Kinematics and inverse Orientation Kinematics; doing so derive the equations to calculate all individual joint angles.
 
