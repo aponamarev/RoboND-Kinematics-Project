@@ -51,10 +51,10 @@ Links | alpha(i-1) | a(i-1) | d(i-1) | theta(i)
 6->EE | 0 | 0 | 0 | 0
 
 ### Denavit-Hartenberg (DH) Parameters Derivation
-Generalize DH homogenious transform matrix is based on [Udacity Forward Kinematics Class](https://classroom.udacity.com/nanodegrees/nd209/parts/c199593e-1e9a-4830-8e29-2c86f70f489e/modules/undefined/lessons/87c52cd9-09ba-4414-bc30-24ae18277d24/concepts/c0837700-3de6-4c41-8a5d-1e25936e0cdb)
+Generalize DH homogeneous transform matrix is based on [Udacity Forward Kinematics Class](https://classroom.udacity.com/nanodegrees/nd209/parts/c199593e-1e9a-4830-8e29-2c86f70f489e/modules/undefined/lessons/87c52cd9-09ba-4414-bc30-24ae18277d24/concepts/c0837700-3de6-4c41-8a5d-1e25936e0cdb)
 ![DH homogenious transform matrix](supporting_images/generic_dh_tf.png)
 
-Generalize DH homogenious transform matrix presented below:
+Generalized DH homogeneous transform matrix in Python code presented below:
 ```python
 def tf_matrix(alpha, a, d, q):
   # Creates a transformation matrix based yaw, pitch, roll rotations
@@ -66,6 +66,80 @@ def tf_matrix(alpha, a, d, q):
     [0, 0, 0, 1]
   ])
   return tf
+```
+The application of generalized DH homogeneous transform matrix results in the following transformation matrices:
+- t0_1
+```
+Matrix([
+[1, 0, 0,     0],
+[0, 1, 0,     0],
+[0, 0, 1, 0.303],
+[0, 0, 0,     1]])
+```
+- t1_2
+```
+Matrix([
+[sin(q2),  cos(q2), 0, 0.35],
+[      0,        0, 1,    0],
+[cos(q2), -sin(q2), 0,    0],
+[      0,        0, 0,    1]])
+```
+- t2_3
+```
+Matrix([
+[cos(q3), -sin(q3), 0, 1.25],
+[sin(q3),  cos(q3), 0,    0],
+[      0,        0, 1,    0],
+[      0,        0, 0,    1]])
+```
+- t3_4
+```
+Matrix([
+[ cos(q4), -sin(q4), 0, -0.054],
+[       0,        0, 1,    1.5],
+[-sin(q4), -cos(q4), 0,      0],
+[       0,        0, 0,      1]])
+```
+- t4_5
+```
+Matrix([
+[cos(q5), -sin(q5),  0, 0],
+[      0,        0, -1, 0],
+[sin(q5),  cos(q5),  0, 0],
+[      0,        0,  0, 1]])
+```
+- t5_6
+```
+Matrix([
+[ cos(q6), -sin(q6), 0, 0],
+[       0,        0, 1, 0],
+[-sin(q6), -cos(q6), 0, 0],
+[       0,        0, 0, 1]])
+```
+- t6_ee
+```
+Matrix([
+[1, 0, 0,     0],
+[0, 1, 0,     0],
+[0, 0, 1, 0.303],
+[0, 0, 0,     1]])
+```
+- combined t0_ee
+```
+Matrix([
+[((sin(q1)*sin(q4) + sin(q2 + q3)*cos(q1)*cos(q4))*cos(q5) + sin(q5)*cos(q1)*cos(q2 + q3))*cos(q6) - (-sin(q1)*cos(q4) + sin(q4)*sin(q2 + q3)*cos(q1))*sin(q6), 
+-((sin(q1)*sin(q4) + sin(q2 + q3)*cos(q1)*cos(q4))*cos(q5) + sin(q5)*cos(q1)*cos(q2 + q3))*sin(q6) - (-sin(q1)*cos(q4) + sin(q4)*sin(q2 + q3)*cos(q1))*cos(q6), 
+-(sin(q1)*sin(q4) + sin(q2 + q3)*cos(q1)*cos(q4))*sin(q5) + cos(q1)*cos(q5)*cos(q2 + q3), 
+-0.303*sin(q1)*sin(q4)*sin(q5) + 1.25*sin(q2)*cos(q1) - 0.303*sin(q5)*sin(q2 + q3)*cos(q1)*cos(q4) - 0.054*sin(q2 + q3)*cos(q1) + 0.303*cos(q1)*cos(q5)*cos(q2 + q3) + 1.5*cos(q1)*cos(q2 + q3) + 0.35*cos(q1)],
+[((sin(q1)*sin(q2 + q3)*cos(q4) - sin(q4)*cos(q1))*cos(q5) + sin(q1)*sin(q5)*cos(q2 + q3))*cos(q6) - (sin(q1)*sin(q4)*sin(q2 + q3) + cos(q1)*cos(q4))*sin(q6),
+-((sin(q1)*sin(q2 + q3)*cos(q4) - sin(q4)*cos(q1))*cos(q5) + sin(q1)*sin(q5)*cos(q2 + q3))*sin(q6) - (sin(q1)*sin(q4)*sin(q2 + q3) + cos(q1)*cos(q4))*cos(q6), 
+-(sin(q1)*sin(q2 + q3)*cos(q4) - sin(q4)*cos(q1))*sin(q5) + sin(q1)*cos(q5)*cos(q2 + q3),  
+1.25*sin(q1)*sin(q2) - 0.303*sin(q1)*sin(q5)*sin(q2 + q3)*cos(q4) - 0.054*sin(q1)*sin(q2 + q3) + 0.303*sin(q1)*cos(q5)*cos(q2 + q3) + 1.5*sin(q1)*cos(q2 + q3) + 0.35*sin(q1) + 0.303*sin(q4)*sin(q5)*cos(q1)],
+[(-sin(q5)*sin(q2 + q3) + cos(q4)*cos(q5)*cos(q2 + q3))*cos(q6) - sin(q4)*sin(q6)*cos(q2 + q3),
+-(-sin(q5)*sin(q2 + q3) + cos(q4)*cos(q5)*cos(q2 + q3))*sin(q6) - sin(q4)*cos(q6)*cos(q2 + q3),
+-(sin(q5)*cos(q4)*cos(q2 + q3) + sin(q2 + q3)*cos(q5)),
+-0.303*sin(q5)*cos(q4)*cos(q2 + q3) - 0.303*sin(q2 + q3)*cos(q5) - 1.5*sin(q2 + q3) + 1.25*cos(q2) - 0.054*cos(q2 + q3) + 0.75],
+[ 0, 0, 0, 1]])
 ```
 
 #### 3. Decouple Inverse Kinematics problem into Inverse Position Kinematics and inverse Orientation Kinematics; doing so derive the equations to calculate all individual joint angles.

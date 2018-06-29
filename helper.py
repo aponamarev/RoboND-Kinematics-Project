@@ -33,19 +33,12 @@ dh_table = {
 
 ### Create transformation matrices for each joint
 t01     = tf_matrix(alpha0, a0, d1, q1).subs(dh_table)
-t01
 t12     = tf_matrix(alpha1, a1, d2, q2).subs(dh_table)
-t12
 t23     = tf_matrix(alpha2, a2, d3, q3).subs(dh_table)
-t23
 t34     = tf_matrix(alpha3, a3, d4, q4).subs(dh_table)
-t34
 t45     = tf_matrix(alpha4, a4, d5, q5).subs(dh_table)
-t45
 t56     = tf_matrix(alpha5, a5, d6, q6).subs(dh_table)
-t56
 t6_ee   = tf_matrix(alpha6, a6, d7, q7).subs(dh_table)
-t6_ee
 
 t0_ee   = t01 * t12 * t23 * t34 * t45 * t56 * t6_ee
 t0_ee
