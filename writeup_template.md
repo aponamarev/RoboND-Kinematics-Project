@@ -21,20 +21,55 @@
 [image2]: ./misc_images/misc3.png
 [image3]: ./misc_images/misc2.png
 
-## [Rubric](https://review.udacity.com/#!/rubrics/972/view) Points
-### Here I will consider the rubric points individually and describe how I addressed each point in my implementation.  
-
----
-### Writeup / README
-
-#### 1. Provide a Writeup / README that includes all the rubric points and how you addressed each one.  You can submit your writeup as markdown or pdf.  
-
-You're reading it!
-
 ### Kinematic Analysis
-#### 1. Run the forward_kinematics demo and evaluate the kr210.urdf.xacro file to perform kinematic analysis of Kuka KR210 robot and derive its DH parameters.
+#### 
+#### 1. Evaluate the kr210.urdf.xacro file to perform kinematic analysis of Kuka KR210 robot.
 
-Here is an example of how to include an image in your writeup.
+In order to construct the table of DH parameters, it is important first to understand the position of all robot joints. KR210 joint coordinates were provided in the [kr210.urdf.xacro](kuka_arm/urdf/kr210.urdf.xacro).
+
+kr210.urdf.xacro file contains x,y, z position for each joint in the following format (in ```<!-- joints -->``` section of the file)
+```
+<joint name="fixed_base_joint" type="fixed">
+    <parent link="base_footprint"/>
+    <child link="base_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+  <joint name="joint_1" type="revolute">
+    <origin xyz="0 0 0.33" rpy="0 0 0"/>
+    <parent link="base_link"/>
+    <child link="link_1"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="${-185*deg}" upper="${185*deg}" effort="300" velocity="${123*deg}"/>
+  </joint>
+```
+In the example presented abot joint_1 considered as a child of the fixed_base_joint, and it is offset for 0.33 with respect to parent (fixed_base_joint) reference frame. Parsing the rest of the kr210.urdf.xacro file results in the following coordinates of kr210:
+
+*Table 1 - Joint Coordinates*
+
+|joint|x|y|z|
+|--- | --- | --- | ---|
+|fixed_base|0|0|0|
+|joint_1|0|0|0.33|
+|joint_2|0 .35|0|0.42|
+|joint_3|0|0|1.25|
+|joint_4|0.96|0|-0.054|
+|joint_5|0.54|0|0|
+|joint_6|0.193|0|0|
+|gripper|0.11|0|0|
+ 
+ Joint coordinates provide a solid foudation for kinematic analysis, however, they are not sufficient enough to construct DH parameters.
+ DH parameters define homogenious tranform for joints connected with a fixed link. The benefit of DH transform is that it allows to define coordinates in a new reference frame using only 4 parameters:
+ * alpha
+ * a
+ * d
+ * theta
+ 
+ In order to convert joint coordinates to DH transform parameters it is important to align reference frames based on the joint angles.
+ For example, joint 1 is set by default to have yaw of 90 degress, switching the position of x and z axis in the reference frame of the joint 2. Therefore, the offset of joint 2 along x axis for results in the offset "a2" parameter.
+ 
+ After accounting for all these transformations we arrive to the following table of DH parameters:
+ *Table 2 - DH Parameters*
+     
 
 ![alt text][image1]
 
