@@ -42,9 +42,9 @@ kr210.urdf.xacro file contains x,y, z position for each joint in the following f
     <limit lower="${-185*deg}" upper="${185*deg}" effort="300" velocity="${123*deg}"/>
   </joint>
 ```
-In the example presented abot joint_1 considered as a child of the fixed_base_joint, and it is offset for 0.33 with respect to parent (fixed_base_joint) reference frame. Parsing the rest of the kr210.urdf.xacro file results in the following coordinates of kr210:
+In the example above, joint_1 considered as a child of the fixed_base_joint, and it is offset for 0.33 with respect to parent (fixed_base_joint) reference frame. Parsing the rest of the kr210.urdf.xacro file results in the following coordinates of kr210:
 
-*Table 1 - Joint Coordinates*
+**Table 1 - Joint Coordinates**
 
 |joint|x|y|z|
 |--- | --- | --- | ---|
@@ -57,33 +57,30 @@ In the example presented abot joint_1 considered as a child of the fixed_base_jo
 |joint_6|0.193|0|0|
 |gripper|0.11|0|0|
  
- Joint coordinates provide a solid foudation for kinematic analysis, however, they are not sufficient enough to construct DH parameters.
- DH parameters define homogenious tranform for joints connected with a fixed link. The benefit of DH transform is that it allows to define coordinates in a new reference frame using only 4 parameters:
- * alpha
- * a
- * d
- * theta
+ Joint coordinates provide a solid foundation for kinematic analysis, however, they are not sufficient enough to construct DH parameters.
+ DH parameters define homogeneous transform for joints connected with a fixed link. The benefit of DH transform is that it allows to define coordinates in a new reference frame using only 4 parameters:
+ * alpha - twist angle
+ * a - link length
+ * d - link offset
+ * theta - joint angle
  
  In order to convert joint coordinates to DH transform parameters it is important to align reference frames based on the joint angles.
- For example, joint 1 is set by default to have yaw of 90 degress, switching the position of x and z axis in the reference frame of the joint 2. Therefore, the offset of joint 2 along x axis for results in the offset "a2" parameter.
+ For example, joint 2 is set by default to have yaw angle of 90 degrees, switching x and z axis in the reference frame for the joint 3. 
+ Therefore, the offset of joint 3 along x axis for results in the offset "a2" parameter.
  
  After accounting for all these transformations we arrive to the following table of DH parameters:
- *Table 2 - DH Parameters*
-     
-
-![alt text][image1]
-
-#### 2. Using the DH parameter table you derived earlier, create individual transformation matrices about each joint. In addition, also generate a generalized homogeneous transform between base_link and gripper_link using only end-effector(gripper) pose.
+ 
+ **Table 2 - DH Parameters**
 
 Links | alpha(i-1) | a(i-1) | d(i-1) | theta(i)
 --- | --- | --- | --- | ---
-0->1 | 0 | 0 | L1 | qi
-1->2 | - pi/2 | L2 | 0 | -pi/2 + q2
-2->3 | 0 | 0 | 0 | 0
-3->4 |  0 | 0 | 0 | 0
-4->5 | 0 | 0 | 0 | 0
-5->6 | 0 | 0 | 0 | 0
-6->EE | 0 | 0 | 0 | 0
+0->1 | 0.0 | 0.00 | 0.33 | q1
+1->2 | -pi / 2.0 | 0.35 | 0.42 | -pi / 2.0 + q2
+2->3 | 0.0 | 1.25 | 0.00 | q3
+3->4 | -pi / 2.0 | 0.0536 | 1.5014 | q4
+4->5 | -pi / 2.0 | 0.00 | 0.00 | q5
+5->6 | -pi / 2.0 | 0.00 | 0.00 | q6
+6->EE | 0.0 | 0.00 | 0.303 | 0.0
 
 ### Denavit-Hartenberg (DH) Parameters Derivation
 Generalize DH homogeneous transform matrix is based on [Udacity Forward Kinematics Class](https://classroom.udacity.com/nanodegrees/nd209/parts/c199593e-1e9a-4830-8e29-2c86f70f489e/modules/undefined/lessons/87c52cd9-09ba-4414-bc30-24ae18277d24/concepts/c0837700-3de6-4c41-8a5d-1e25936e0cdb)
@@ -176,7 +173,6 @@ Matrix([
 -0.303*sin(q5)*cos(q4)*cos(q2 + q3) - 0.303*sin(q2 + q3)*cos(q5) - 1.5*sin(q2 + q3) + 1.25*cos(q2) - 0.054*cos(q2 + q3) + 0.75],
 [ 0, 0, 0, 1]])
 ```
-
 #### 3. Decouple Inverse Kinematics problem into Inverse Position Kinematics and inverse Orientation Kinematics; doing so derive the equations to calculate all individual joint angles.
 
 And here's where you can draw out and show your math for the derivation of your theta angles. 

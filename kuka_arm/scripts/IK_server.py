@@ -57,8 +57,8 @@ class IK(object):
         # the right hand rule (counter-clock wise
         # Create a dictionary containing df table
         self.dh_table = {
-            'alpha0':            0.0, 'a0': 0.00, 'd1': 0.75,
-            'alpha1':   -np.pi / 2.0, 'a1': 0.35, 'd2': 0.0,
+            'alpha0':            0.0, 'a0': 0.00, 'd1': 0.33,
+            'alpha1':   -np.pi / 2.0, 'a1': 0.35, 'd2': 0.42,
             'alpha2':            0.0, 'a2': 1.25, 'd3': 0.0,
             'alpha3':   -np.pi / 2.0, 'a3': 0.0536, 'd4': 1.5014,
             'alpha4':   -np.pi / 2.0, 'a4': 0.0, 'd5': 0.00,
