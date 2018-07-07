@@ -20,10 +20,11 @@
 [image1]: ./misc_images/misc1.png
 [image2]: ./misc_images/misc3.png
 [image3]: ./misc_images/misc2.png
+[joints]: ./misc_images/joints.png
 
 ### Kinematic Analysis
-#### 
-#### 1. Evaluate the kr210.urdf.xacro file to perform kinematic analysis of Kuka KR210 robot.
+
+#### Evaluate the kr210.urdf.xacro file to perform kinematic analysis of Kuka KR210 robot.
 
 In order to construct the table of DH parameters, it is important first to understand the position of all robot joints. KR210 joint coordinates were provided in the [kr210.urdf.xacro](kuka_arm/urdf/kr210.urdf.xacro).
 
@@ -56,13 +57,16 @@ In the example above, joint_1 considered as a child of the fixed_base_joint, and
 |joint_5|0.54|0|0|
 |joint_6|0.193|0|0|
 |gripper|0.11|0|0|
+
+**Char 1 - Joint Coordinates**
+![alt text][joints]
  
  Joint coordinates provide a solid foundation for kinematic analysis, however, they are not sufficient enough to construct DH parameters.
  DH parameters define homogeneous transform for joints connected with a fixed link. The benefit of DH transform is that it allows to define coordinates in a new reference frame using only 4 parameters:
- * alpha - twist angle
- * a - link length
- * d - link offset
- * theta - joint angle
+ * alpha - twist angle - rotation around the x-axis
+ * a - link length - translation along the x-axis
+ * d - link offset - translation along the z-axis
+ * theta - joint angle - rotation around the z-axis
  
  In order to convert joint coordinates to DH transform parameters it is important to align reference frames based on the joint angles.
  For example, joint 2 is set by default to have yaw angle of 90 degrees, switching x and z axis in the reference frame for the joint 3. 
@@ -82,7 +86,7 @@ Links | alpha(i-1) | a(i-1) | d(i-1) | theta(i)
 5->6 | -pi / 2.0 | 0.00 | 0.00 | q6
 6->EE | 0.0 | 0.00 | 0.303 | 0.0
 
-### Denavit-Hartenberg (DH) Parameters Derivation
+#### Denavit-Hartenberg (DH) Parameters Derivation
 Generalize DH homogeneous transform matrix is based on [Udacity Forward Kinematics Class](https://classroom.udacity.com/nanodegrees/nd209/parts/c199593e-1e9a-4830-8e29-2c86f70f489e/modules/undefined/lessons/87c52cd9-09ba-4414-bc30-24ae18277d24/concepts/c0837700-3de6-4c41-8a5d-1e25936e0cdb)
 ![DH homogenious transform matrix](supporting_images/generic_dh_tf.png)
 
@@ -173,11 +177,19 @@ Matrix([
 -0.303*sin(q5)*cos(q4)*cos(q2 + q3) - 0.303*sin(q2 + q3)*cos(q5) - 1.5*sin(q2 + q3) + 1.25*cos(q2) - 0.054*cos(q2 + q3) + 0.75],
 [ 0, 0, 0, 1]])
 ```
-#### 3. Decouple Inverse Kinematics problem into Inverse Position Kinematics and inverse Orientation Kinematics; doing so derive the equations to calculate all individual joint angles.
+#### Inverse Kinematics problem
+Pick and place project provides us with the planning path (locations) for the end effector (gripper). In order to follow 
+provided coordinates of the end effector we have to convert coordinates into appropriate theta angles of robot joints. In
+order to evaluate theta angles we can trigonometric relationships embedded into DH homogeneous transformation.
 
-And here's where you can draw out and show your math for the derivation of your theta angles. 
-
-![alt text][image2]
+**Theta 1** 
+ 
+ KR210 is fixed at the position of the base (xyz=0,0,0). The axis of the first joint reference frame are aligned with the
+ base axis, where x points in the direction of the arm movement, y is perpendicular ot x, and z points upwards. Therefore,
+ joint 1 is responsible for setting rotation of the main body of the arm along z axis, which allows to evaluate theta1 angle,
+ based on the x and y position of the wrist center (WC): theta1 = atan(wc.y, wc.x).
+ 
+ theta1 = np.arctan2(WC[1,0], WC[0,0])
 
 ### Project Implementation
 

@@ -100,6 +100,11 @@ def IK_thetas(px, py, pz, roll, pitch, yaw):
     WC = eval_WC(px, py, pz, rot_ee)
 
     # Calculate joint angles using inverse kinematics
+    # **Theta 1**
+    # KR210 is fixed at the position of the base (xyz=0,0,0). The axis of the first joint reference frame are aligned with the
+    # base axis, where x points in the direction of the arm movement, y is perpendicular ot x, and x points upwards. Therefore,
+    # joint 1 is responsible for setting rotation of the main body of the arm along z axis, which allows to evaluate theta1 angle,
+    # based on the x and y position of the wrist center (WC): theta1 = atan(wc.y, wc.x).
     theta1 = atan2(WC[1], WC[0])
     # SSS traingle for theta2 and theta3
     s_a = 1.501
