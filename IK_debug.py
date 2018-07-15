@@ -130,7 +130,8 @@ def IK_thetas(px, py, pz, roll, pitch, yaw):
 
     r0_3 = t01[0:3, 0:3] * t12[0:3, 0:3] * t23[0:3, 0:3]
     r0_3 = r0_3.evalf(subs={q1: theta1, q2: theta2, q3: theta3})
-    r3_6 = r0_3.inv("LU") * rot_ee
+    #r3_6 = r0_3.inv("LU") * rot_ee
+    r3_6 = r0_3.T * rot_ee
     theta4 = atan2(r3_6[2, 2], -r3_6[0, 2])
     theta5 = atan2(sqrt(r3_6[0, 2] * r3_6[0, 2] + r3_6[2, 2] * r3_6[2, 2]), r3_6[1, 2])
     theta6 = atan2(-r3_6[1, 1], r3_6[1, 0])
