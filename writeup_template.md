@@ -215,6 +215,22 @@ ab = acos((s_a * s_a + s_c * s_c - s_b * s_b) / (2 * s_a * s_c))
  theta3 = pi / 2 - (ab + 0.036)
  ```
 
+Theta angles 1 through 3 determine the location of the end affector. Remaining three joints (4,5, and 6) responsible for the orientation
+of the end affector. These angles calculated based on the math presented in the kuka pick and place project [walkthrough](https://www.youtube.com/watch?v=Gt8DRm-REt4).
+
+The main idea of the presented calculation is that remaining angles can be evaluated by dividing overall rotation matrix R[0:6] by rotation matrix
+resulting for the angles of the first 3 thetas R[0:3]:
+
+The calculation below uses transformation operation to find and inverse matrix for r0_3. This approach is based on the assumption
+that rotation matrix an orthogonal one, and it's transform given a matrix inverse.
+```
+r3_6 = r0_3.T * rot_ee
+
+theta4 = atan2(r3_6[2, 2], -r3_6[0, 2])
+theta5 = atan2(sqrt(r3_6[0, 2] * r3_6[0, 2] + r3_6[2, 2] * r3_6[2, 2]), r3_6[1, 2])
+theta6 = atan2(-r3_6[1, 1], r3_6[1, 0])
+```
+
 ### Project Implementation
 
 #### 1. Fill in the `IK_server.py` file with properly commented python code for calculating Inverse Kinematics based on previously performed Kinematic Analysis. Your code must guide the robot to successfully complete 8/10 pick and place cycles. Briefly discuss the code you implemented and your results. 

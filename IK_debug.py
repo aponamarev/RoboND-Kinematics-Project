@@ -130,6 +130,8 @@ def IK_thetas(px, py, pz, roll, pitch, yaw):
 
     r0_3 = t01[0:3, 0:3] * t12[0:3, 0:3] * t23[0:3, 0:3]
     r0_3 = r0_3.evalf(subs={q1: theta1, q2: theta2, q3: theta3})
+    # The calculation below uses transformation operation to find and inverse matrix for r0_3. This approach is based on the assumption
+    # that rotation matrix an orthogonal one, and it's transform given a matrix inverse.
     #r3_6 = r0_3.inv("LU") * rot_ee
     r3_6 = r0_3.T * rot_ee
     theta4 = atan2(r3_6[2, 2], -r3_6[0, 2])

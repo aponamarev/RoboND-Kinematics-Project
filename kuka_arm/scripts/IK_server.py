@@ -144,7 +144,8 @@ class IK(object):
         self.t23 = self._tf_matrix(self.dh_table['alpha2'], self.dh_table['a2'], self.dh_table['d3'],
                                    self.q3)
         self.r0_3 = self.t01[0:3, 0:3] * self.t12[0:3, 0:3] * self.t23[0:3, 0:3]
-
+        # The calculation below uses transformation operation to find and inverse matrix for r0_3. This approach is based on the assumption
+        # that rotation matrix an orthogonal one, and it's transform given a matrix inverse.
         #r3_6 = np.linalg.inv(self.r0_3) * rot_ee
         r3_6 = np.transpose(self.r0_3) * rot_ee # A transpose of an orthogonal matrix == to matrix inverse
         theta4 = np.arctan2(r3_6[2, 2], -r3_6[0, 2])
