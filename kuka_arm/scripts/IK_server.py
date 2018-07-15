@@ -115,18 +115,23 @@ class IK(object):
         # joint 1 is responsible for setting rotation of the main body of the arm along z axis, which allows to evaluate theta1 angle,
         # based on the x and y position of the wrist center (WC): theta1 = atan(wc.y, wc.x).
         theta1 = np.arctan2(WC[1,0], WC[0,0])
-        # SSS traingle for theta2 and theta3
+
+        # In order to calculate angles 2 and 3 we can use the law of cosines. The law of cosines states that the sides of a triangle
+        # defined by the following relationship: c^2 = a^2 + b^2 - 2 * a * b * cos(lambda), where lambda is the angle between sides a and b.
+        # Knowing the measurement of tingle sides (kuka kr 210 links between joints 2, 3, and wrist center (WC)), it is possible to calculate the angles of the triangle.
+        #
+        # The calculations below first assign known link measurements to the triangle sides, then calculates unknown side, and a last step
+        # if finds the angle measurements using acos function:
         s_a = 1.501
-        s_b = np.sqrt(
-            pow(np.sqrt(WC[0,0]**2 + WC[1,0]**2) - 0.35, 2)
-            + pow(WC[2,0] - 0.75, 2)
-        )
         s_c = 1.25
+        s_b = np.sqrt(
+            pow(np.sqrt(WC[0, 0]**2 + WC[1, 0]**2) - 0.35, 2)
+            + pow(WC[2, 0] - 0.75, 2)
+        )
 
         aa = np.arccos( (s_b**2 + s_c**2 - s_a**2) / (2 * s_b * s_c) )
         ab = np.arccos((s_a**2 + s_c**2 - s_b**2) / (2 * s_a * s_c))
-        #ac = np.arccos((s_a**2 + s_b[0,0]**2 - s_c**2) / (2 * s_a * s_b[0,0]))
-
+        # Then derived angles should be converted into theta 2, 3 based on their joint orientations:
         theta2 = np.pi / 2 - aa - np.arctan2(WC[2,0] - 0.75, np.sqrt(WC[0,0]**2 + WC[1,0]**2) - 0.35)
         theta3 = np.pi / 2 - (ab + 0.036)
 

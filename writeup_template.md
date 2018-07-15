@@ -190,6 +190,30 @@ order to evaluate theta angles we can trigonometric relationships embedded into 
  based on the x and y position of the wrist center (WC): theta1 = atan(wc.y, wc.x).
  
  theta1 = np.arctan2(WC[1,0], WC[0,0])
+ 
+ In order to calculate angles 2 and 3 we can use the law of cosines. The law of cosines states that the sides of a triangle
+ defined by the following relationship: c^2 = a^2 + b^2 - 2 * a * b * cos(lambda), where lambda is the angle between sides a and b.
+ Knowing the measurement of tingle sides (kuka kr 210 links between joints 2, 3, and wrist center (WC)), it is possible to calculate the angles of the triangle.
+  
+ The calculations below first assign known link measurements to the triangle sides, then calculates unknown side, and a last step
+ if finds the angle measurements using acos function:
+  
+```python
+s_a = 1.501
+s_c = 1.25
+s_b = sqrt(pow(sqrt(WC[0] * WC[0] + WC[1] * WC[1]) - 0.35, 2) + pow(WC[2] - 0.75, 2))
+
+# Angle a (between sides b and c of the triangle
+aa = acos( (s_b * s_b + s_c * s_c - s_a * s_a) / (2 * s_b * s_c) )
+# Angle b (between sides a and c of the triangle
+ab = acos((s_a * s_a + s_c * s_c - s_b * s_b) / (2 * s_a * s_c))
+```
+ Then derived angles should be converted into theta 2, 3 based on their joint orientations:
+
+```python 
+ theta2 = pi / 2 - aa - atan2(WC[2] - 0.75, sqrt(WC[0] * WC[0] + WC[1] * WC[1]) - 0.35)
+ theta3 = pi / 2 - (ab + 0.036)
+ ```
 
 ### Project Implementation
 
