@@ -191,6 +191,8 @@ order to evaluate theta angles we can trigonometric relationships embedded into 
  
  theta1 = np.arctan2(WC[1,0], WC[0,0])
  
+ **Thetas 2 and 3**
+ 
  In order to calculate angles 2 and 3 we can use the law of cosines. The law of cosines states that the sides of a triangle
  defined by the following relationship: c^2 = a^2 + b^2 - 2 * a * b * cos(lambda), where lambda is the angle between sides a and b.
  Knowing the measurement of tingle sides (kuka kr 210 links between joints 2, 3, and wrist center (WC)), it is possible to calculate the angles of the triangle.
@@ -215,8 +217,10 @@ ab = acos((s_a * s_a + s_c * s_c - s_b * s_b) / (2 * s_a * s_c))
  theta3 = pi / 2 - (ab + 0.036)
  ```
 
-Theta angles 1 through 3 determine the location of the end affector. Remaining three joints (4,5, and 6) responsible for the orientation
-of the end affector. These angles calculated based on the math presented in the kuka pick and place project [walkthrough](https://www.youtube.com/watch?v=Gt8DRm-REt4).
+**Thetas 4 through 6**
+
+Theta angles 1 through 3 determine the location of the end effector. Remaining three joints (4,5, and 6) responsible for the orientation
+of the end effector. These angles calculated based on the math presented in the kuka pick and place project [walkthrough](https://www.youtube.com/watch?v=Gt8DRm-REt4).
 
 The main idea of the presented calculation is that remaining angles can be evaluated by dividing overall rotation matrix R[0:6] by rotation matrix
 resulting for the angles of the first 3 thetas R[0:3]:
