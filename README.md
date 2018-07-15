@@ -1,18 +1,37 @@
 ## Project: Kinematics Pick & Place
-### Writeup Template: You can use this file as a template for your writeup if you want to submit it as a markdown file, but feel free to use some other method and submit a pdf if you prefer.
 
----
+### Project Implementation
 
+#### Installation
+The code was implemented using Python2.7, ROS Kinetic (for installation please use the following [link](http://wiki.ros.org/kinetic/Installation/Ubuntu), 
+and Gazeebo 7.12.0.
+The installation of ROS Kinetic could be difficult (if not impossible) on some operating systems. Therefore, to insure compatibility, the project
+was implemented in a docker image (based on Ubuntu 16.04). Please find accompanying images [here](https://hub.docker.com/r/aponamarev/ubuntu_ros_vnc/).
+*Initial Setup*
+1. To install project please first pull the aforementioned docker image:
+```
+docker pull aponamarev/ubuntu_ros_vnc
+```
+2. Install vnc viewer - [real vnc](https://www.realvnc.com/en/).
+3. Launch the docker
+```
+docker run -it -p 5900:5900 aponamarev/ubuntu_ros_vnc
+```
+4. Once the docker is running, connect to the docker using vnc viewer.
 
-**Steps to complete the project:**  
+Once the *initial setup* is done, please install ROS following provided [instructions](http://wiki.ros.org/kinetic/Installation/Ubuntu), and git clone this project.
 
+#### FK and IK code
+The code related to Forward and Inverse Kinematics is located in the following files:
 
-1. Set up your ROS Workspace.
-2. Download or clone the [project repository](https://github.com/udacity/RoboND-Kinematics-Project) into the ***src*** directory of your ROS Workspace.  
-3. Experiment with the forward_kinematics environment and get familiar with the robot.
-4. Launch in [demo mode](https://classroom.udacity.com/nanodegrees/nd209/parts/7b2fd2d7-e181-401e-977a-6158c77bf816/modules/8855de3f-2897-46c3-a805-628b5ecf045b/lessons/91d017b1-4493-4522-ad52-04a74a01094c/concepts/ae64bb91-e8c4-44c9-adbe-798e8f688193).
-5. Perform Kinematic Analysis for the robot following the [project rubric](https://review.udacity.com/#!/rubrics/972/view).
-6. Fill in the `IK_server.py` with your Inverse Kinematics code. 
+* IK_debug - debugging code implemented using sympy and designed to verify the accuracy of both inverse and forward kinematic calculations. 
+* IK_server - implementation of ROS server in python2.7 deigned to evaluate theta angles for a given planning path  
+
+#### Running code
+Following the setup of the project execute the following command to launch pick and place project:
+```
+~/catkin_ws/src/RoboND-Kinematics-Project/kuka_arm/scripts/safe_spawner.sh
+```  
 
 
 [//]: # (Image References)
@@ -233,38 +252,5 @@ theta4 = atan2(r3_6[2, 2], -r3_6[0, 2])
 theta5 = atan2(sqrt(r3_6[0, 2] * r3_6[0, 2] + r3_6[2, 2] * r3_6[2, 2]), r3_6[1, 2])
 theta6 = atan2(-r3_6[1, 1], r3_6[1, 0])
 ```
-
-### Project Implementation
-
-#### Installation
-The code was implemented using Python2.7, ROS Kinetic (for installation please use the following [link](http://wiki.ros.org/kinetic/Installation/Ubuntu), 
-and Gazeebo 7.12.0.
-The installation of ROS Kinetic could be difficult (if not impossible) on some operating systems. Therefore, to insure compatibility, the project
-was implemented in a docker image (based on Ubuntu 16.04). Please find accompanying images [here](https://hub.docker.com/r/aponamarev/ubuntu_ros_vnc/).
-*Initial Setup*
-1. To install project please first pull the aforementioned docker image:
-```
-docker pull aponamarev/ubuntu_ros_vnc
-```
-2. Install vnc viewer - [real vnc](https://www.realvnc.com/en/).
-3. Launch the docker
-```
-docker run -it -p 5900:5900 aponamarev/ubuntu_ros_vnc
-```
-4. Once the docker is running, connect to the docker using vnc viewer.
-
-Once the *initial setup* is done, please install ROS following provided [instructions](http://wiki.ros.org/kinetic/Installation/Ubuntu), and git clone this project.
-
-#### FK and IK code
-The code related to Forward and Inverse Kinematics is located in the following files:
-
-* IK_debug - debugging code implemented using sympy and designed to verify the accuracy of both inverse and forward kinematic calculations. 
-* IK_server - implementation of ROS server in python2.7 deigned to evaluate theta angles for a given planning path  
-
-#### Running code
-Following the setup of the project execute the following command to launch pick and place project:
-```
-~/catkin_ws/src/RoboND-Kinematics-Project/kuka_arm/scripts/safe_spawner.sh
-``` 
 
 
