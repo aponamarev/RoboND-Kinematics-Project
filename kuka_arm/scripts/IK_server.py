@@ -149,7 +149,7 @@ class IK(object):
         #r3_6 = np.linalg.inv(self.r0_3) * rot_ee
         r3_6 = np.transpose(self.r0_3) * rot_ee # A transpose of an orthogonal matrix == to matrix inverse
         theta4 = np.arctan2(r3_6[2, 2], -r3_6[0, 2])
-        theta5 = np.arctan2(np.sqrt(r3_6[0, 2] * r3_6[0, 2] + r3_6[2, 2] * r3_6[2, 2]), r3_6[1, 2])
+        theta5 = np.arctan2(np.sqrt((r3_6[0, 2] ** 2 + r3_6[2, 2] ** 2)/2.0), r3_6[1, 2])
         theta6 = np.arctan2(-r3_6[1, 1], r3_6[1, 0])
 
         return (theta1, theta2, theta3, theta4, theta5, theta6), WC

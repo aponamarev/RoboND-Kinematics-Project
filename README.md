@@ -39,12 +39,14 @@ Following the setup of the project execute the following command to launch pick 
 [image1]: ./misc_images/misc1.png
 [image2]: ./misc_images/misc3.png
 [joints]: ./misc_images/joints.png
+[t2_3]: ./misc_images/thetas2_3.png
 
 ### Kinematic Analysis
 
 #### Evaluate the kr210.urdf.xacro file to perform kinematic analysis of Kuka KR210 robot.
 
-In order to construct the table of DH parameters, it is important first to understand the position of all robot joints. KR210 joint coordinates were provided in the [kr210.urdf.xacro](kuka_arm/urdf/kr210.urdf.xacro).
+In order to construct the table of DH parameters, it is important first to understand the position of all robot joints. 
+KR210 joint coordinates were provided in the [kr210.urdf.xacro](kuka_arm/urdf/kr210.urdf.xacro).
 
 kr210.urdf.xacro file contains x,y, z position for each joint in the following format (in ```<!-- joints -->``` section of the file)
 ```
@@ -79,16 +81,17 @@ In the example above, joint_1 considered as a child of the fixed_base_joint, and
 **Char 1 - Joint Coordinates**
 ![alt text][joints]
  
- Joint coordinates provide a solid foundation for kinematic analysis, however, they are not sufficient enough to construct DH parameters.
- DH parameters define homogeneous transform for joints connected with a fixed link. The benefit of DH transform is that it allows to define coordinates in a new reference frame using only 4 parameters:
+ Joint coordinates provide a solid foundation for kinematic analysis, however, they are not sufficient enough to 
+ construct DH parameters. DH parameters define homogeneous transform for joints connected with a fixed link. 
+ The benefit of DH transform is that it allows to define coordinates in a new reference frame using only 4 parameters:
  * alpha - twist angle - rotation around the x-axis
  * a - link length - translation along the x-axis
  * d - link offset - translation along the z-axis
  * theta - joint angle - rotation around the z-axis
  
- In order to convert joint coordinates to DH transform parameters it is important to align reference frames based on the joint angles.
- For example, joint 2 is set by default to have yaw angle of 90 degrees, switching x and z axis in the reference frame for the joint 3. 
- Therefore, the offset of joint 3 along x axis for results in the offset "a2" parameter.
+ In order to convert joint coordinates to DH transform parameters it is important to align reference frames based on
+ the joint angles. For example, joint 2 is set by default to have yaw angle of 90 degrees, switching x and z axis in 
+ the reference frame for the joint 3. Therefore, the offset of joint 3 along x axis for results in the offset "a2" parameter.
  
  After accounting for all these transformations we arrive to the following table of DH parameters:
  
@@ -207,13 +210,23 @@ order to evaluate theta angles we can trigonometric relationships embedded into 
  joint 1 is responsible for setting rotation of the main body of the arm along z axis, which allows to evaluate theta1 angle,
  based on the x and y position of the wrist center (WC): theta1 = atan(wc.y, wc.x).
  
+ **The extra operation needed to adjust the discrepancy between the DH table and the URDF reference frame**
+ In order to evaluate the position of WC we fist have to account for the difference between reference frames between
+ URDF files and Gazebo. The picture below shows the difference between two refernce frames:
+ 
+ 
+ 
+ 
  theta1 = np.arctan2(WC[1,0], WC[0,0])
  
  **Thetas 2 and 3**
  
  In order to calculate angles 2 and 3 we can use the law of cosines. The law of cosines states that the sides of a triangle
  defined by the following relationship: c^2 = a^2 + b^2 - 2 * a * b * cos(lambda), where lambda is the angle between sides a and b.
- Knowing the measurement of tingle sides (kuka kr 210 links between joints 2, 3, and wrist center (WC)), it is possible to calculate the angles of the triangle.
+ Knowing the measurement of tingle sides (kuka kr 210 links between joints 2, 3, and wrist center (WC)), 
+ it is possible to calculate the angles of the triangle.
+ 
+ ![alt text][t2_3]
   
  The calculations below first assign known link measurements to the triangle sides, then calculates unknown side, and a last step
  if finds the angle measurements using acos function:
@@ -235,21 +248,80 @@ ab = acos((s_a * s_a + s_c * s_c - s_b * s_b) / (2 * s_a * s_c))
  theta3 = pi / 2 - (ab + 0.036)
  ```
 
-**Thetas 4 through 6**
+**Thetas 4 through 6 - Inverse Orientation**
 
 Theta angles 1 through 3 determine the location of the end effector. Remaining three joints (4,5, and 6) responsible for the orientation
-of the end effector. These angles calculated based on the math presented in the kuka pick and place project [walkthrough](https://www.youtube.com/watch?v=Gt8DRm-REt4).
+of the end effector. These angles calculated based on the math presented in 
+[Udacity class on inverse kinematics recap](https://classroom.udacity.com/nanodegrees/nd209/parts/c199593e-1e9a-4830-8e29-2c86f70f489e/modules/8855de3f-2897-46c3-a805-628b5ecf045b/lessons/91d017b1-4493-4522-ad52-04a74a01094c/concepts/a1abb738-84ee-48b1-82d7-ace881b5aec0)).
 
-The main idea of the presented calculation is that remaining angles can be evaluated by dividing overall rotation matrix R[0:6] by rotation matrix
-resulting for the angles of the first 3 thetas R[0:3]:
-
-The calculation below uses transformation operation to find and inverse matrix for r0_3. This approach is based on the assumption
-that rotation matrix an orthogonal one, and it's transform given a matrix inverse.
+First, since the combined result of all joint angles produces the and orientation of end effector, the rotation matrix of the end effector
+should be equal to the product of joint 0 through 6 rotations:
+```python
+r0_6 = (t01 * t12 * t23 * t34 * t45 * t56 * t6_ee)[0:3, 0:3]
 ```
-r3_6 = r0_3.T * rot_ee
+and
+```python
+r0_6 == rot_ee
+```
+therefore
+```python
+rot_ee == (t01 * t12 * t23 * t34 * t45 * t56 * t6_ee)[0:3, 0:3]
+```
 
-theta4 = atan2(r3_6[2, 2], -r3_6[0, 2])
-theta5 = atan2(sqrt(r3_6[0, 2] * r3_6[0, 2] + r3_6[2, 2] * r3_6[2, 2]), r3_6[1, 2])
+The next step is based on our thetas 0-3 calculated above. Since our thetas 1 - 3 allow us to calculate homogeneous
+transforms (t) and rotation matrices (r), r=t[0:3, 0:3], we can evaluate the value remaining rotation matrices 4 - 6:
+```python
+rot_ee == (r01 * r12 * r23 * r34 * r45 * r56 * r6_ee)
+r4_6 = (t34[0:3, 0:3] * t45[0:3, 0:3] * t56[0:3, 0:3])
+rot_ee == r0_3 * r4_6 
+r4_6 == rot_ee / r0_3 == r0_3.inv() * rot_ee  
+```
+Considering that rotation matrices are orthogonal, it is possible to simplify the calculation of the inverse matrix. 
+The inverse matrix of an orthogonal matrix equals to the transpose of itself:
+```python
+r0_3.inv() == r0_3.T
+# Therefore
+r3_6 = r0_3.T * rot_ee
+```
+The last step in inverse orientation is the extraction of theta values. Considering that rotation matrix r3_6 has the following
+format, we can evaluate thetas 4 through 6 as follows:
+```
+r3_6 = t34[:3, :3] * t45[:3, :3] * t56[:3, :3]
+print r3_6
+Matrix([
+[-sin(q4)*sin(q6) + cos(q4)*cos(q5)*cos(q6), -sin(q4)*cos(q6) - sin(q6)*cos(q4)*cos(q5), -sin(q5)*cos(q4)], 
+[sin(q5)*cos(q6),                            -sin(q5)*sin(q6),                                    cos(q5)], 
+[-sin(q4)*cos(q5)*cos(q6) - sin(q6)*cos(q4), sin(q4)*sin(q6)*cos(q5) - cos(q4)*cos(q6), sin(q4)*sin(q5)]
+])
+```
+
+**Theta 4**
+Theta 4 can be evaluated based on atan2 of the q4. Given that r3_6[2, 2], -r3_6[0, 2] contain sin and cos of q4, it is 
+possible to calculate tanh of the angle (tanh = sin / cos). sin(q5) present in both r3_6[2, 2], -r3_6[0, 2] will present
+in both multiplier and denominator of tanh, and therefore doesn't affect the tanh value unless q5==90 degrees (pi/2).
+```
+theta4 = atan2(sin(q4)*sin(q5), sin(q5)*cos(q4)) = atan2(r3_6[2, 2], -r3_6[0, 2])
+```
+Theta 5 angle has 2 solutions:
+1) Given that r3_6[0, 2] = -sin(q5)*cos(q4) and r3_6[2, 2] = sin(q4)*sin(q5), 
+sin(p5) = sqrt(r3_6[0, 2] ** 2 + r3_6[2, 2] ** 2) = 
+sqrt( sin(q5)^2*cos(q4)^2 + sin(q4)^2*sin(q5)^2 ) = sqrt( sin(q5)^2*(cos(q4)^2 + sin(q4)^2) ) = sqrt( sin(q5)**2 ), 
+given cos(q4)^2 + sin(q4)^2 == 1. Therefore:
+```
+theta5 = atan2(sqrt((r3_6[0, 2] ** 2 + r3_6[2, 2] ** 2)/2), cos(q5)) = atan2(sqrt(r3_6[0, 2] ** 2 + r3_6[2, 2] ** 2), r3_6[1, 2])
+```
+2) Alternatively, sin(q5) can also be calculated using r3_6[1, 0] = sin(q5)*cos(q6) and r3_6[1, 1] = -sin(q5)*sin(q6).
+Here the solution is similar to the option 1:
+sin(q5) = sqrt(r3_6[1, 0] ^ 2 + r3_6[1, 1] ^ 2) = sqrt(sin(q5)^2*cos(q6)^2 + (-sin(q5))^2*sin(q6)^2) 
+= sqrt(sin(q5)^2*(cos(q6)^2 + sin(q6)^2)) = sqrt(sin(q5)^2)
+```
+theta5 = atan2(sqrt((r3_6[1, 0] ** 2 + r3_6[1, 1] ** 2)/2), cos(q5)) = atan2(sqrt(r3_6[0, 2] ** 2 + r3_6[2, 2] ** 2), r3_6[1, 2])
+```
+
+**Theta 6**
+The angle of theta 6 can be directly evaluate given r3_6[1, 0] = sin(q5)*cos(q6) and r3_6[1, 1] = -sin(q5)*sin(q6):
+tanh(q6) = -r3_6[1, 1] / r3_6[1, 0] = sin(q5)*sin(q6) / sin(q5)*cos(q6) = sin(q6) / cos(q6) 
+```
 theta6 = atan2(-r3_6[1, 1], r3_6[1, 0])
 ```
 

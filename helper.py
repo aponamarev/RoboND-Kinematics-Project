@@ -1,5 +1,4 @@
-from sympy import init_session, symbols, sin, cos, Matrix, pi
-init_session()
+from sympy import symbols, sin, cos, Matrix, pi
 
 # 2. Denavit-Hartenberg (DH) Parameters Derivation
 ### Create mathematical symbols
@@ -42,5 +41,8 @@ t6_ee   = tf_matrix(alpha6, a6, d7, q7).subs(dh_table)
 
 t0_ee   = t01 * t12 * t23 * t34 * t45 * t56 * t6_ee
 t0_ee
+
+r3_6 = t34[:3, :3] * t45[:3, :3] * t56[:3, :3]
+print r3_6
 
 
