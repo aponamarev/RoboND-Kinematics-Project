@@ -257,7 +257,7 @@ of the end effector. These angles calculated based on the math presented in
 First, since the combined result of all joint angles produces the and orientation of end effector, the rotation matrix of the end effector
 should be equal to the product of joint 0 through 6 rotations:
 ```python
-r0_6 = (t01 * t12 * t23 * t34 * t45 * t56 * t6_ee)[0:3, 0:3]
+r0_6 = t01[0:3, 0:3] * t12[0:3, 0:3] * t23[0:3, 0:3] * t34[0:3, 0:3] * t45[0:3, 0:3] * t56[0:3, 0:3] * t6_ee[0:3, 0:3]
 ```
 and
 ```python
@@ -265,7 +265,7 @@ r0_6 == rot_ee
 ```
 therefore
 ```python
-rot_ee == (t01 * t12 * t23 * t34 * t45 * t56 * t6_ee)[0:3, 0:3]
+rot_ee == t01[0:3, 0:3] * t12[0:3, 0:3] * t23[0:3, 0:3] * t34[0:3, 0:3] * t45[0:3, 0:3] * t56[0:3, 0:3] * t6_ee[0:3, 0:3]
 ```
 
 The next step is based on our thetas 0-3 calculated above. Since our thetas 1 - 3 allow us to calculate homogeneous
@@ -296,12 +296,15 @@ Matrix([
 ```
 
 **Theta 4**
+
 Theta 4 can be evaluated based on atan2 of the q4. Given that r3_6[2, 2], -r3_6[0, 2] contain sin and cos of q4, it is 
 possible to calculate tanh of the angle (tanh = sin / cos). sin(q5) present in both r3_6[2, 2], -r3_6[0, 2] will present
 in both multiplier and denominator of tanh, and therefore doesn't affect the tanh value unless q5==90 degrees (pi/2).
 ```
 theta4 = atan2(sin(q4)*sin(q5), sin(q5)*cos(q4)) = atan2(r3_6[2, 2], -r3_6[0, 2])
 ```
+**Theta 5**
+
 Theta 5 angle has 2 solutions:
 1) Given that r3_6[0, 2] = -sin(q5)*cos(q4) and r3_6[2, 2] = sin(q4)*sin(q5), 
 sin(p5) = sqrt(r3_6[0, 2] ** 2 + r3_6[2, 2] ** 2) = 
@@ -319,6 +322,7 @@ theta5 = atan2(sqrt((r3_6[1, 0] ** 2 + r3_6[1, 1] ** 2)/2), cos(q5)) = atan2(sqr
 ```
 
 **Theta 6**
+
 The angle of theta 6 can be directly evaluate given r3_6[1, 0] = sin(q5)*cos(q6) and r3_6[1, 1] = -sin(q5)*sin(q6):
 tanh(q6) = -r3_6[1, 1] / r3_6[1, 0] = sin(q5)*sin(q6) / sin(q5)*cos(q6) = sin(q6) / cos(q6) 
 ```
