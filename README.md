@@ -40,6 +40,7 @@ Following the setup of the project execute the following command to launch pick 
 [image2]: ./misc_images/misc3.png
 [joints]: ./misc_images/joints.png
 [t2_3]: ./misc_images/thetas2_3.png
+[URDF_to_Gazebo]: ./misc_images/URDF_to_Gazebo_rf.png
 
 ### Kinematic Analysis
 
@@ -211,10 +212,28 @@ order to evaluate theta angles we can trigonometric relationships embedded into 
  based on the x and y position of the wrist center (WC): theta1 = atan(wc.y, wc.x).
  
  **The extra operation needed to adjust the discrepancy between the DH table and the URDF reference frame**
- In order to evaluate the position of WC we fist have to account for the difference between reference frames between
- URDF files and Gazebo. The picture below shows the difference between two refernce frames:
  
+ In order to evaluate the position of WC we fist have to account for the difference between URDF files and Gazebo.
+ The picture below shows the difference between two refernce frames:
  
+ ![alt text][URDF_to_Gazebo]
+ 
+ In order to adjust reference frames we need to rotate coordinates first along z axis by 180 degrees (pi) and then along y axis by 90 degrees (pi/2).
+ 
+ Therefore, the correct coordinates of wrist center calculated as follows:
+ 
+ ```python
+ WC = EE - 0.303 * rot_ee[:, 2]
+ ```
+ where rot_ee[:, 2] was adjusted for the difference between Gazebo and URDF reference frames (rot_error):
+ ```python
+rot_z_adj = rot_z(np.radians(180))
+rot_y_adj = rot_y(np.radians(-90))
+
+rot_error = np.matmul(rot_z_adj, rot_y_adj)
+
+rot_ee = np.matmul(rot_ee, rot_error)
+ ```
  
  
  theta1 = np.arctan2(WC[1,0], WC[0,0])

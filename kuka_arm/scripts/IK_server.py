@@ -93,19 +93,20 @@ class IK(object):
         _rot_z = rot_z(y)
         rot_ee = np.matmul(np.matmul(_rot_z, _rot_y), _rot_x)
 
-        rot_z_adj = rot_z(np.radians(180))
-        rot_y_adj = rot_y(np.radians(-90))
-
-        rot_error = np.matmul(rot_z_adj, rot_y_adj)
-
-        rot_ee = np.matmul(rot_ee, rot_error)
-
         return rot_ee
+
+    def _gazebo_to_urdf_adj(self):
+      rot_z_adj = rot_z(np.radians(180))
+      rot_y_adj = rot_y(np.radians(-90))
+
+      rot_error = np.matmul(rot_z_adj, rot_y_adj)
+      return rot_error
 
 
     def eval(self, px, py, pz, roll, pitch, yaw):
         # create end-effector matrix
         rot_ee = self._rot_matrix(roll, pitch, yaw)
+        rot_ee = np.matmul(rot_ee, self._gazebo_to_urdf_adj())
         WC = self._eval_WC(px, py, pz, rot_ee)
 
         # Calculate joint angles using inverse kinematics
