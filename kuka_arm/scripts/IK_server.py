@@ -123,7 +123,7 @@ class IK(object):
         #
         # The calculations below first assign known link measurements to the triangle sides, then calculates unknown side, and a last step
         # if finds the angle measurements using acos function:
-        s_a = 1.501
+        s_a = 1.5014
         s_c = 1.25
         s_b = np.sqrt(
             pow(np.sqrt(WC[0, 0]**2 + WC[1, 0]**2) - 0.35, 2)
@@ -149,11 +149,47 @@ class IK(object):
         # that rotation matrix an orthogonal one, and it's transform given a matrix inverse.
         #r3_6 = np.linalg.inv(self.r0_3) * rot_ee
         r3_6 = np.transpose(self.r0_3) * rot_ee # A transpose of an orthogonal matrix == to matrix inverse
+        """
+        **Theta 4**
+
+        Theta 4 can be evaluated based on atan2 of the q4. Given that r3_6[2, 2], -r3_6[0, 2] contain sin and cos of q4, it is 
+        possible to calculate tanh of the angle (tanh = sin / cos). sin(q5) present in both r3_6[2, 2], -r3_6[0, 2] will present
+        in both multiplier and denominator of tanh, and therefore doesn't affect the tanh value unless sin(q5)==0 degrees (0 or pi).
+        
+        **Effect of theta 5 of theta 4 calculation**
+        
+        In case theta 5 equals 0 or 180 degrees (pi), sin(q5), multiplier in the top and bottom sides of theta4 IK equation, is equal 0,
+        which will lead to both top and bottom side of the theta 4 equation equal to 0.
+        """
         theta4 = np.arctan2(r3_6[2, 2], -r3_6[0, 2])
+        """
+        Theta 5 angle has 2 solutions:
+        1) Given that r3_6[0, 2] = -sin(q5)*cos(q4) and r3_6[2, 2] = sin(q4)*sin(q5), 
+        sin(p5) = sqrt(r3_6[0, 2] ** 2 + r3_6[2, 2] ** 2) = sqrt( sin(q5)^2*cos(q4)^2 + sin(q4)^2*sin(q5)^2 ) = sqrt( sin(q5)^2*(cos(q4)^2 + sin(q4)^2) ) = sqrt( sin(q5)**2 ), 
+        given cos(q4)^2 + sin(q4)^2 == 1. Therefore:
+        ```
+        theta5 = atan2(sqrt((r3_6[0, 2] ** 2 + r3_6[2, 2] ** 2)/2), r3_6[1, 2])
+         = atan2(sqrt(sin(q5)^2*cos(q4)^2 + sin(q4)^2*sin(q5)^2), cos(q5))
+        ```
+        2) Alternatively, sin(q5) can also be calculated using r3_6[1, 0] = sin(q5)*cos(q6) and r3_6[1, 1] = -sin(q5)*sin(q6).
+        Here the solution is similar to the option 1:
+        sin(q5) = sqrt(r3_6[1, 0] ^ 2 + r3_6[1, 1] ^ 2) = sqrt(sin(q5)^2*cos(q6)^2 + (-sin(q5))^2*sin(q6)^2) 
+        = sqrt(sin(q5)^2*(cos(q6)^2 + sin(q6)^2)) = sqrt(sin(q5)^2)
+        ```
+        theta5 = atan2(sqrt(r3_6[1, 0] ** 2 + r3_6[1, 1] ** 2), r3_6[1, 2])
+         = atan2(sqrt(sin(q5)^2*cos(q6)^2 + sin(q5)^2*sin(q6)^2), cos(q5)) 
+        ```
+        Both solutions depend on the value of other thetas (4 and 6). Therefore, neither solution 
+        have any benefit. By default, I chose the fist solution, and implement the second solution in case the first solution results in error:
+        """
         if (round(np.cos(theta4), 4)==0.0) or (round(np.sin(theta4), 4)==0.0):
             theta5 = np.atan2(np.sqrt(r3_6[0, 2] ** 2 + r3_6[2, 2] ** 2), r3_6[1, 2])
         else:
             theta5 = np.atan2(np.sqrt(r3_6[1, 0] ** 2 + r3_6[1, 1] ** 2), r3_6[1, 2])
+        """
+        The angle of theta 6 can be directly evaluate given r3_6[1, 0] = sin(q5)*cos(q6) and r3_6[1, 1] = -sin(q5)*sin(q6):
+        tanh(q6) = -r3_6[1, 1] / r3_6[1, 0] = sin(q5)*sin(q6) / sin(q5)*cos(q6) = sin(q6) / cos(q6) 
+        """
         theta6 = np.arctan2(-r3_6[1, 1], r3_6[1, 0])
 
         return (theta1, theta2, theta3, theta4, theta5, theta6), WC
@@ -196,7 +232,7 @@ def handle_calculate_IK(req):
                  req.poses[x].orientation.z, req.poses[x].orientation.w])
 
             ### Your IK code here
-            thetas, _ = ik.eval(px, py, py, roll, pitch, yaw)
+            thetas, _ = ik.eval(px, py, pz, roll, pitch, yaw)
             theta1, theta2, theta3, theta4, theta5, theta6 = thetas
 
             # Populate response for the IK request
