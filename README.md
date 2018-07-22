@@ -106,7 +106,7 @@ Links | alpha(i-1) | a(i-1) | d(i-1) | theta(i)
 1->2 | -pi / 2.0 | 0.35 | 0.42 | -pi / 2.0 + q2
 2->3 | 0.0 | 1.25 | 0.00 | q3
 3->4 | -pi / 2.0 | 0.0536 | 1.5014 | q4
-4->5 | -pi / 2.0 | 0.00 | 0.00 | q5
+4->5 | pi / 2.0 | 0.00 | 0.00 | q5
 5->6 | -pi / 2.0 | 0.00 | 0.00 | q6
 6->EE | 0.0 | 0.00 | 0.303 | 0.0
 
@@ -357,9 +357,9 @@ Both solutions depend on the value of other thetas (4 and 6). Therefore, neither
 have any benefit. By default, I chose the fist solution, and implement the second solution in case the first solution results in error:
 ```python
 if (round(np.cos(theta4), 4)==0.0) or (round(np.sin(theta4), 4)==0.0):
-    theta5 = np.atan2(np.sqrt(r3_6[0, 2] ** 2 + r3_6[2, 2] ** 2), r3_6[1, 2])
+    theta5 = np.arctan2(np.sqrt(r3_6[0, 2] ** 2 + r3_6[2, 2] ** 2), r3_6[1, 2])
 else:
-    theta5 = np.atan2(np.sqrt(r3_6[1, 0] ** 2 + r3_6[1, 1] ** 2), r3_6[1, 2])
+    theta5 = np.atrcan2(np.sqrt(r3_6[1, 0] ** 2 + r3_6[1, 1] ** 2), r3_6[1, 2])
 ```
 
 **Theta 6**

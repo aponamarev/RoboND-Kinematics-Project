@@ -57,11 +57,11 @@ class IK(object):
         # the right hand rule (counter-clock wise
         # Create a dictionary containing df table
         self.dh_table = {
-            'alpha0':            0.0, 'a0': 0.00, 'd1': 0.33,
-            'alpha1':   -np.pi / 2.0, 'a1': 0.35, 'd2': 0.42,
+            'alpha0':            0.0, 'a0': 0.00, 'd1': 0.75,
+            'alpha1':   -np.pi / 2.0, 'a1': 0.35, 'd2': 0.0,
             'alpha2':            0.0, 'a2': 1.25, 'd3': 0.0,
             'alpha3':   -np.pi / 2.0, 'a3': 0.0536, 'd4': 1.5014,
-            'alpha4':   -np.pi / 2.0, 'a4': 0.0, 'd5': 0.00,
+            'alpha4':   np.pi / 2.0, 'a4': 0.0, 'd5': 0.00,
             'alpha5':   -np.pi / 2.0, 'a5': 0.0, 'd6': 0.00,
             'alpha6':            0.0, 'a6': 0.0, 'd7': 0.303
         }
@@ -183,9 +183,9 @@ class IK(object):
         have any benefit. By default, I chose the fist solution, and implement the second solution in case the first solution results in error:
         """
         if (round(np.cos(theta4), 4)==0.0) or (round(np.sin(theta4), 4)==0.0):
-            theta5 = np.atan2(np.sqrt(r3_6[0, 2] ** 2 + r3_6[2, 2] ** 2), r3_6[1, 2])
+            theta5 = np.arctan2(np.sqrt(r3_6[0, 2] ** 2 + r3_6[2, 2] ** 2), r3_6[1, 2])
         else:
-            theta5 = np.atan2(np.sqrt(r3_6[1, 0] ** 2 + r3_6[1, 1] ** 2), r3_6[1, 2])
+            theta5 = np.arctan2(np.sqrt(r3_6[1, 0] ** 2 + r3_6[1, 1] ** 2), r3_6[1, 2])
         """
         The angle of theta 6 can be directly evaluate given r3_6[1, 0] = sin(q5)*cos(q6) and r3_6[1, 1] = -sin(q5)*sin(q6):
         tanh(q6) = -r3_6[1, 1] / r3_6[1, 0] = sin(q5)*sin(q6) / sin(q5)*cos(q6) = sin(q6) / cos(q6) 
